@@ -1,0 +1,38 @@
+# Directorios de compilación
+target/
+*.class
+
+# Archivos de configuración del IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Archivos de Maven
+*.log
+*.jar
+*.war
+*.ear
+*.class
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración de usuarios
+*.user
+*.prefs
+
+# Dependencias
+.mvn/
+
+# Logs
+.tmp/
+files/
+
+#VSC
+.vscode/
