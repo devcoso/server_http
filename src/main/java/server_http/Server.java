@@ -32,12 +32,9 @@ public class Server {
                 byte [] buffer = new byte[65536];
                 int size = dis.read(buffer);
                 String request = new String(buffer, 0, size);
-                System.out.println("Request: " + request);
-                String response = "HTTP/1.1 200 OK\n" +
-                        "Content-Type: text/html\n" +
-                        "Content-Length: 11\n" +
-                        "\n" +
-                        "Hello World";
+                HTTPHandler handler = new HTTPHandler(request);
+                handler.showFormatedRequest();
+                String response = handler.getResponse();
                 dos.write(response.getBytes());
                 dos.close();
                 client.close();
