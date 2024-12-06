@@ -25,10 +25,6 @@ public class Server {
             try {
                 dis = new DataInputStream(client.getInputStream());
                 dos = new DataOutputStream(client.getOutputStream());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
                 byte [] buffer = new byte[65536];
                 int size = dis.read(buffer);
                 String request = new String(buffer, 0, size);

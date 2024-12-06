@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 public class Responses {
 
-    public static String getRootResponse(String filepath) {
+    public static String getFileResponse(String filepath) {
         //Obtener archivo index
         File index = new File(filepath);
         if (!index.exists()) {

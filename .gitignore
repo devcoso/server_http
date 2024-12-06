@@ -32,7 +32,7 @@ Thumbs.db
 
 # Logs
 .tmp/
-files/
+resources/public/
 
 #VSC
 .vscode/

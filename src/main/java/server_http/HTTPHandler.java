@@ -32,9 +32,9 @@ public class HTTPHandler {
         String response = "";
 
         if(this.method == HTTPMethod.GET){
-            if (path.equals("/")) response = Responses.getRootResponse("./resources/index.html");
-            else if(path.equals("/main.js")) response = Responses.getRootResponse("./resources/main.js");
-            else response = Responses.getNotFound();
+            if (path.equals("/")) response = Responses.getFileResponse("./resources/index.html");
+            else if(path.equals("/main.js")) response = Responses.getFileResponse("./resources/main.js");
+            else response = Responses.getFileResponse("./resources/public" + path);
         } else response = Responses.getMethodNotFound();
 
         return response;
