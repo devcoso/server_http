@@ -22,13 +22,13 @@ public class Server {
         public void run() {
             try (
                 InputStream input = client.getInputStream();
-                OutputStream output = client.getOutputStream()
+                DataOutputStream output = new DataOutputStream(client.getOutputStream());
             ) {
                 while (true) {
                     HTTPHandler handler = HTTPHandler.readCompleteRequest(input);
                     handler.showFormatedRequest();
-                    String response = handler.getResponse();
-                    client.getOutputStream().write(response.getBytes());
+                    byte[] response = handler.getResponse();
+                    output.write(response);
                 }
             } catch (SocketTimeoutException e) {
                 System.out.println("Client disconnected: " + client.getInetAddress().getHostAddress());

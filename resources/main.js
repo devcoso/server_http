@@ -26,12 +26,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: base64
             })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
+                .then(response => {
+                    if (response.ok) {
+                        response.json().then(data => {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: data?.message,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
+                        });
+                    } else {
+                        response.json().then(data => {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'error',
+                                title: data?.message,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
+                        });
+                    }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error(error);
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Error al subir archivo',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
                 });
         }
     })

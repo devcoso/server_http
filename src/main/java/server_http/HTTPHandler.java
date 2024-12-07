@@ -27,7 +27,7 @@ public class HTTPHandler {
 
     public static HTTPHandler readCompleteRequest(InputStream input) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        byte[] data = new byte[1024];
+        byte[] data = new byte[65536];
         boolean headersComplete = false;
         int contentLength = -1;
 
@@ -55,9 +55,6 @@ public class HTTPHandler {
 
         String request = buffer.toString("UTF-8");
         String[] firstLine = request.split(" ");
-        for (int i = 0; i < firstLine.length; i++) {
-            System.out.println("firstLine[" + i + "]: " + firstLine[i]);
-        }
         String method = firstLine[0];
         String resource = firstLine[1];
         String contentType = getContentType(request);
@@ -84,8 +81,8 @@ public class HTTPHandler {
         return -1; // No hay cuerpo
     }
 
-    public String getResponse() {
-        String response = "";
+    public byte[] getResponse() {
+        byte[] response;
 
         // Routes
         if(this.method == HTTPMethod.GET){
@@ -105,7 +102,7 @@ public class HTTPHandler {
                 response = Responses.getCreateFileResponse("./resources/public/" + resource.split("/")[2], body, true);
             else response = Responses.getNotFound();
         }
-        else response = Responses.getMethodNotFound();
+        else response = Responses.getMethodNotAllowed();
 
         return response;
     }
@@ -115,7 +112,7 @@ public class HTTPHandler {
         System.out.println("resource: " + resource);
         System.out.println("Content-Type: " + contentType);
         System.out.println("Content-Length: " + contentLength);
-        System.out.println("Body: " + body);
+        //System.out.println("Body: " + body);
     }
 
     public void showRequest() {
