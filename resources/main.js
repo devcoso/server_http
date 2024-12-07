@@ -16,15 +16,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Mandar post para crear archivo al dar click en el boton
     boton.addEventListener('click', () => {
-        //Codificar el archivo en base64
+        
+        //Leer archivo
         const reader = new FileReader();
-        reader.readAsDataURL(fileZone.files[0]);
+        const file = fileZone.files[0];
+        reader.readAsArrayBuffer(file);
+
         reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            console.log(base64);
-            fetch(`/upload/${fileZone.files[0].name}`, {
+            const buffer = reader.result;
+            fetch(`/upload/${file.name}`, {
                 method: 'POST',
-                body: base64
+                body: buffer,
             })
                 .then(response => {
                     if (response.ok) {

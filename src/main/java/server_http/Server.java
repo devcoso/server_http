@@ -21,7 +21,7 @@ public class Server {
 
         public void run() {
             try (
-                InputStream input = client.getInputStream();
+                DataInputStream input = new DataInputStream(client.getInputStream());
                 DataOutputStream output = new DataOutputStream(client.getOutputStream());
             ) {
                 while (true) {

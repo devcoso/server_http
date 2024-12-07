@@ -39,17 +39,15 @@ public class Responses {
         }
     }
 
-    public static byte[] getCreateFileResponse(String filepath, String body, boolean isPUT) {
+    public static byte[] getCreateFileResponse(String filepath, byte[] bytes, boolean isPUT) {
         //Crear archivo
         File file = new File(filepath);
         file.getParentFile().mkdirs();
         
         try {
             if (file.createNewFile() || (file.exists() && isPUT)) {
-                // Decodificar el body de base64 a String
-                byte[] decodedBytes = java.util.Base64.getDecoder().decode(body);
                 // Escribir el contenido en el archivo
-                Files.write(Paths.get(file.getPath()), decodedBytes);
+                Files.write(Paths.get(file.getPath()), bytes);
                 String jsonresponse = "{\"message\": \"El archivo fue creado\"}";
                 return ("HTTP/1.1 201 Created\n" +
                     "Content-Type: application/json\n" +

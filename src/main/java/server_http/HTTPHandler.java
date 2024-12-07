@@ -15,9 +15,10 @@ public class HTTPHandler {
         HEAD
     }
     protected HTTPMethod method;
-    protected String resource, contentType, contentLength, body;
+    protected String resource, contentType, contentLength;
+    protected byte[] body;
 
-    public HTTPHandler(String request, String method, String resource, String contentType, String contentLength, String body) {
+    public HTTPHandler(String request, String method, String resource, String contentType, String contentLength, byte[] body) {
         this.method = HTTPMethod.valueOf(method);
         this.resource = resource;
         this.contentType = contentType;
@@ -25,7 +26,7 @@ public class HTTPHandler {
         this.body = body;
     }
 
-    public static HTTPHandler readCompleteRequest(InputStream input) throws IOException {
+    public static HTTPHandler readCompleteRequest(DataInputStream input) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] data = new byte[65536];
         boolean headersComplete = false;
@@ -59,7 +60,13 @@ public class HTTPHandler {
         String resource = firstLine[1];
         String contentType = getContentType(request);
         String contentLengthStr = getContentLength(request) + "";
-        String body = request.substring(request.indexOf("\r\n\r\n") + 4);
+        // Obtener el cuerpo de la solicitud
+        if(contentLength == -1) return new HTTPHandler(request, method, resource, contentType, contentLengthStr, null);
+        
+        byte[] full_request = buffer.toByteArray();
+        byte[] body = new byte[contentLength];
+        System.arraycopy(full_request, full_request.length - contentLength, body, 0, contentLength);
+
         return new HTTPHandler(request ,method, resource, contentType, contentLengthStr, body);
     }
 
