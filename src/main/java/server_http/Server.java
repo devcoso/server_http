@@ -20,22 +20,27 @@ public class Server {
         }
 
         public void run() {
-            DataInputStream dis = null;
-            DataOutputStream dos = null;
-            try {
-                dis = new DataInputStream(client.getInputStream());
-                dos = new DataOutputStream(client.getOutputStream());
-                byte [] buffer = new byte[65536];
-                int size = dis.read(buffer);
-                String request = new String(buffer, 0, size);
-                HTTPHandler handler = new HTTPHandler(request);
-                handler.showFormatedRequest();
-                String response = handler.getResponse();
-                dos.write(response.getBytes());
-                dos.close();
-                client.close();
-            } catch (IOException e) {
+            try (
+                InputStream input = client.getInputStream();
+                OutputStream output = client.getOutputStream()
+            ) {
+                while (true) {
+                    HTTPHandler handler = HTTPHandler.readCompleteRequest(input);
+                    handler.showFormatedRequest();
+                    String response = handler.getResponse();
+                    client.getOutputStream().write(response.getBytes());
+                }
+            } catch (SocketTimeoutException e) {
+                System.out.println("Client disconnected: " + client.getInetAddress().getHostAddress());
+            } catch (Exception e) {
                 e.printStackTrace();
+            } 
+            finally {
+                try {
+                    client.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -48,9 +53,11 @@ public class Server {
             while (true) {
                 Socket client = server.accept();
                 System.out.println("Client connected: " + client.getInetAddress().getHostAddress());
+                client.getKeepAlive();
+                client.setSoTimeout(10000);
                 pool.execute(new ServerThread(client));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
