@@ -8,17 +8,16 @@ import java.nio.file.Paths;
 public class Responses {
 
     public static byte[] getFileResponse(String filepath) {
-        //Obtener archivo index
-        File index = new File(filepath);
-        if (!index.exists()) {
+        File file = new File(filepath);
+        if (!file.exists()) {
             return getNotFound();
         }
 
         try {
             // Leer el contenido del archivo
-            byte[] content = Files.readAllBytes(Paths.get(index.getPath()));
+            byte[] content = Files.readAllBytes(Paths.get(file.getPath()));
             // Retornar el contenido del archivo con tablas MIME
-            String MIMEType = MIME.typeByExtension(index.getName().substring(index.getName().lastIndexOf(".") + 1));
+            String MIMEType = MIME.typeByExtension(file.getName().substring(file.getName().lastIndexOf(".") + 1));
             
             
             String header = "HTTP/1.1 200 OK\n" +
@@ -155,11 +154,43 @@ public class Responses {
 
     //Errors
     public static byte[]  getNotFound(){
-        return ("HTTP/1.1 404 Not Found\n" +
+
+        File index = new File("./resources/404.html");
+        if (!index.exists()) {
+            return ("HTTP/1.1 404 Not Found\n" +
+            "Content-Type: text/html\n" +
+            "Content-Length: 9\n" +
+            "\n" +
+            "Not Found").getBytes();
+        }
+
+        try {
+            // Leer el contenido del archivo
+            byte[] content = Files.readAllBytes(Paths.get(index.getPath()));
+            // Retornar el contenido del archivo con tablas MIME
+            String MIMEType = MIME.typeByExtension(index.getName().substring(index.getName().lastIndexOf(".") + 1));
+            
+            
+            String header = "HTTP/1.1 200 OK\n" +
+            "Content-Type: " + MIMEType + "\n" +
+            "Content-Length: " + content.length + "\n" +
+            "\n";
+            
+            byte[] response = new byte[content.length + header.length()];
+
+            byte[] headerBytes = header.getBytes();
+            System.arraycopy(headerBytes, 0, response, 0, headerBytes.length);
+            System.arraycopy(content, 0, response, headerBytes.length, content.length);
+
+            return response;
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
+            return ("HTTP/1.1 404 Not Found\n" +
                 "Content-Type: text/html\n" +
                 "Content-Length: 9\n" +
                 "\n" +
                 "Not Found").getBytes();
+        }
     }
 
     public static byte[]  getMethodNotAllowed(){

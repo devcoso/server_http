@@ -95,6 +95,7 @@ public class HTTPHandler {
             if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
             else if(resource.equals("/main.js")) response = Responses.getFileResponse("./resources/main.js");
             else if(resource.equals("/favicon.ico")) response = Responses.getFileResponse("./resources/favicon.ico");
+            else if(resource.equals("/armando.jpeg")) response = Responses.getFileResponse("./resources/armando.jpeg");
             else if(resource.equals("/list")) response = Responses.getFilesResponse("./resources/public");
             else response = Responses.getFileResponse("./resources/public" + resource);
         } 
