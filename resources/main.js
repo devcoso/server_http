@@ -109,9 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 : `${(file.size / 1024 / 1024).toFixed(2)} MB`;
                         const element = document.createElement('li');
                         const div = document.createElement('div');
-                        div.classList.add('flex', 'items-center', 'justify-between', 'my-1');
+                        div.classList.add('flex', 'flex-col' ,'md:flex-row', 'items-center', 'justify-between', 'my-1');
                         const a = document.createElement('a');
-                        a.classList.add('text-lg', 'font-bold', 'hover:text-blue-500');
+                        a.classList.add('text-lg', 'w-full', 'break-words', 'block', 'font-bold', 'hover:text-blue-500');
                         a.href = `/${file.name}`;
                         a.target = '_blank';
                         a.textContent = file.name;

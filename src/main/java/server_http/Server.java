@@ -49,7 +49,7 @@ public class Server {
     public Server() throws Exception {
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server started on port " + PORT);
+            System.out.println("Server started on port " + PORT + "on host " + HOST);
             while (true) {
                 Socket client = server.accept();
                 System.out.println("Client connected: " + client.getInetAddress().getHostAddress());
