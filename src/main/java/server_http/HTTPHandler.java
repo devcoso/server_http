@@ -1,7 +1,6 @@
 package server_http;
 
 import java.io.*;
-import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -57,7 +56,7 @@ public class HTTPHandler {
         String request = buffer.toString("UTF-8");
         String[] firstLine = request.split(" ");
         String method = firstLine[0];
-        String resource = firstLine[1];
+        String resource = firstLine.length > 1 ? firstLine[1] : "";
         String contentType = getContentType(request);
         String contentLengthStr = getContentLength(request) + "";
         // Obtener el cuerpo de la solicitud
