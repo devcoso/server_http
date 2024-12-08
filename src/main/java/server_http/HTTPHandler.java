@@ -93,6 +93,11 @@ public class HTTPHandler {
         // Routes
         if(this.method == HTTPMethod.GET){
             if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
+            else if(resource.equals("/parameters")) response = Responses.getFileResponse("./resources/parameters.html");
+            else if(resource.startsWith("/parameters?")) response = Responses.getParametersResponse(resource.split("\\?")[1]);
+            else if(resource.equals("/404")) response = Responses.getNotFound();
+            else if(resource.equals("/500")) response = Responses.getInternalServerError();
+            else if(resource.equals("/style.css")) response = Responses.getFileResponse("./resources/style.css");
             else if(resource.equals("/main.js")) response = Responses.getFileResponse("./resources/main.js");
             else if(resource.equals("/favicon.ico")) response = Responses.getFileResponse("./resources/favicon.ico");
             else if(resource.equals("/armando.jpeg")) response = Responses.getFileResponse("./resources/armando.jpeg");

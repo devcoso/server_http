@@ -152,6 +152,67 @@ public class Responses {
         }
     }
 
+    public static byte[] getParametersResponse(String resource) {
+        //Obtener parametros
+        String[] parameters = resource.split("&");
+
+
+        String htmlParameters = "";
+        for (int i = 0; i < parameters.length; i++) {
+            String[] parameter = parameters[i].split("=");
+
+            // si no hay valor
+            if (parameter.length == 1) {
+                parameter = new String[]{parameter[0], ""};
+            }
+
+            htmlParameters += "<tr class=\"bg-white dark:bg-gray-800 border-b text-gray-900 dark:text-white dark:border-gray-700\">" + "\r\n" +
+                    "<th scope=\"row\" class=\"px-6 py-4 font-medium whitespace-nowrap\">" + "\r\n" +
+                        parameter[0] + "\r\n" +
+                    "</th>" + "\r\n" +
+                    "<td class=\"px-6 py-4 text-gray-800 dark:text-gray-100 \">" + "\r\n" +
+                        parameter[1] + "\r\n" +
+                    "</td>" + "\r\n" +
+                "</tr>" + "\r\n";
+        }
+        htmlParameters += "</tbody>\r\n" + 
+                        "        </table>\r\n" + 
+                        "    </div>\r\n" + 
+                        "</body>\r\n" + 
+                        "</html>";
+
+        File file = new File("./resources/show_parameters.html");
+        if (!file.exists()) {
+            return getNotFound();
+        }
+
+        try {
+            // Leer el contenido del archivo
+            byte[] template = Files.readAllBytes(Paths.get(file.getPath()));
+            // Retornar el contenido del archivo con tablas MIME
+            String MIMEType = MIME.typeByExtension(file.getName().substring(file.getName().lastIndexOf(".") + 1));
+            
+            
+            String header = "HTTP/1.1 200 OK\n" +
+            "Content-Type: " + MIMEType + "\n" +
+            "Content-Length: " + (template.length + htmlParameters.length())   + "\n" +
+            "\n";
+            
+            byte[] response = new byte[template.length + header.length() + htmlParameters.length()];
+
+            byte[] headerBytes = header.getBytes();
+            byte[] htmlParametersBytes = htmlParameters.getBytes();
+            System.arraycopy(headerBytes, 0, response, 0, headerBytes.length);
+            System.arraycopy(template, 0, response, headerBytes.length, template.length);
+            System.arraycopy(htmlParametersBytes, 0, response, headerBytes.length + template.length, htmlParametersBytes.length);
+
+            return response;
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
+            return getNotFound();
+        }
+    }
+
     //Errors
     public static byte[]  getNotFound(){
 
