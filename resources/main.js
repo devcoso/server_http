@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileZone = document.getElementById('dropzone-file');
     const fileName = document.getElementById('file-name');
     const boton = document.getElementById('btn-submit');
+    const btnRefresh = document.getElementById('btn-refresh');  
     const list = document.getElementById('file-list');
 
     //Obtener input file
@@ -16,11 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Mandar post para crear archivo al dar click en el boton
     boton.addEventListener('click', () => {
-        
         //Leer archivo
         const reader = new FileReader();
         const file = fileZone.files[0];
         reader.readAsArrayBuffer(file);
+
+        //Loader
+        Swal.fire({
+            title: 'Subiendo archivo...',
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            },
+        });
+        boton.disabled = true;
 
         reader.onload = () => {
             const buffer = reader.result;
@@ -40,6 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 timer: 3000,
                                 timerProgressBar: true,
                             });
+                            getFiles();
+                            //Limpiar input file
+                            fileZone.value = '';
+                            fileName.textContent = 'Añade otro archivo';
+                            //Quitar loader
                         });
                     } else {
                         response.json().then(data => {
@@ -69,47 +84,155 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     })
+
+    btnRefresh.addEventListener('click', () => {
+        getFiles();
+    })
+
     //Obtener lista de archivos
+    getFiles();
 
-    //fake endpoint
-    const files = [
-        {
-            name : 'archivo1.txt',
-            size : '1.2MB',
-        },
-        {
-            name : 'archivo2.pdf',
-            size : '0.2MB',
-        },
-        {
-            name : 'book.xls',
-            size : '1.2MB',
-        },
-        {
-            name : 'class1.java',
-            size : '1.2MB',
-        },
-    ]
+    function getFiles() {
+        fetch('/list')
+        .then(response => {
+            if (response.ok) {
+                response.json().then(data => {
+                    const files = data;
+                    list.innerHTML = '';
 
-    showFiles(files);
+                    files.forEach((file, i) => {
+                        file.size = parseInt(file.size);
+                        file.size = file.size < 1024
+                            ? `${file.size} B`
+                            : file.size < 1024 * 1024
+                                ? `${(file.size / 1024).toFixed(2)} KB`
+                                : `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                        const element = document.createElement('li');
+                        const div = document.createElement('div');
+                        div.classList.add('flex', 'items-center', 'justify-between', 'my-1');
+                        const a = document.createElement('a');
+                        a.classList.add('text-lg', 'font-bold', 'hover:text-blue-500');
+                        a.href = `/${file.name}`;
+                        a.target = '_blank';
+                        a.textContent = file.name;
+                        const span = document.createElement('span');
+                        span.classList.add('font-normal', 'text-sm', 'ml-2');
+                        span.textContent = file.size;
+                        const input = document.createElement('input');
+                        input.hidden = true;
+                        input.id = `file-name-${i}`;
+                        input.type = 'text';
+                        input.value = file.name;
+                        const div2 = document.createElement('div');
+                        div2.classList.add('flex', 'items-center', 'justify-between', 'space-x-2');
+                        const buttonEdit = document.createElement('button');
+                        buttonEdit.classList.add('bg-blue-500', 'hover:bg-blue-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded');
+                        buttonEdit.textContent = 'Editar';
+                        const buttonDelete = document.createElement('button');
+                        buttonDelete.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-4', 'rounded');
+                        buttonDelete.textContent = 'Eliminar';
+                        a.appendChild(span);
+                        div.appendChild(a);
+                        div.appendChild(input);
+                        div2.appendChild(buttonEdit);
+                        div2.appendChild(buttonDelete);
+                        div.appendChild(div2);
+                        element.appendChild(div);
+                        list.appendChild(element);
 
-    function showFiles (files) {
-        //list.innerHTML = '';
-        files.forEach((file, i) => {
-            const element = document.createElement('li');
-            element.innerHTML = `
-                    <div class="flex items-center justify-between my-1">
-                        <p class="text-lg font-bold">${file.name} <span class="font-normal text-sm">${file.size}</span></p>
-                        <div class="flex items-center justify-between gap-2">
-                            <input hidden id="file-name-${i}" type="text" value="${file.name}" />
-                            <button id="edit-file-${i}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Editar</button>
-                            <button id="delete-file-${i}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Eliminar</button>
-                    </div>`;
-            list.appendChild(element);
-        })
-    }
+                        // Cambiar archivo contenido
+                        buttonEdit.addEventListener('click', () => {
+                            const newName = document.getElementById(`file-name-${i}`).value;
+                            Swal.fire({
+                                title: 'Cambiar nombre de archivo',
+                                input: 'text',
+                                inputValue: newName,
+                                showCancelButton: true,
+                                confirmButtonText: 'Cambiar',
+                                confirmButtonColor: '#4caf50',
+                                cancelButtonText: 'Cancelar',
+                                showLoaderOnConfirm: true,
+                                preConfirm: (newName) => {
+                                    return fetch(`/rename/${file.name}/${newName}`, {
+                                        method: 'PUT',
+                                    })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(response.statusText);
+                                            }
+                                            return response.json();
+                                        })
+                                        .catch(error => {
+                                            Swal.showValidationMessage(`Error: ${error}`);
+                                        });
+                                },
+                            }).then(result => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: result.value.message,
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+                                    getFiles();
+                                }
+                            });
+                        });
 
-    //Editar archivo
+                        // Eliminar archivo
+                        buttonDelete.addEventListener('click', () => {
+                            Swal.fire({
+                                title: '¿Estás seguro de eliminar este archivo?',
+                                text: 'No podrás recuperar el archivo una vez eliminado',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Eliminar',
+                                confirmButtonColor: '#d33',
+                                cancelButtonText: 'Cancelar',
+                                showLoaderOnConfirm: true,
+                                preConfirm: () => {
+                                    return fetch(`/delete/${file.name}`, {
+                                        method: 'DELETE'
+                                    })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(response.statusText);
+                                            }
+                                            return response.json();
+                                        })
+                                        .catch(error => {
+                                            Swal.showValidationMessage(`Error: ${error}`);
+                                        });
+                                },
+                            }).then(result => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: result.value.message,
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+                                    getFiles();
+                                }
+                            });
+                        });
 
-    //Eliminar archivo
+                    });
+                });
+            } else {
+                response.json().then(data => {
+                    console.error(data.message);
+                });
+            }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }
 })

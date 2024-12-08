@@ -94,6 +94,8 @@ public class HTTPHandler {
         if(this.method == HTTPMethod.GET){
             if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
             else if(resource.equals("/main.js")) response = Responses.getFileResponse("./resources/main.js");
+            else if(resource.equals("/favicon.ico")) response = Responses.getFileResponse("./resources/favicon.ico");
+            else if(resource.equals("/list")) response = Responses.getFilesResponse("./resources/public");
             else response = Responses.getFileResponse("./resources/public" + resource);
         } 
         else if(this.method == HTTPMethod.POST){
@@ -104,8 +106,15 @@ public class HTTPHandler {
         }
         else if(this.method == HTTPMethod.PUT){
             if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
-            else if (resource.startsWith("/upload"))
-                response = Responses.getCreateFileResponse("./resources/public/" + resource.split("/")[2], body, true);
+            else if (resource.startsWith("/upload")) 
+            response = Responses.getCreateFileResponse("./resources/public/" + resource.split("/")[2], body, true);
+            else if (resource.startsWith("/rename"))
+            response = Responses.renameResponse("./resources/public/" + resource.split("/")[2],"./resources/public/" + resource.split("/")[3]);
+            else response = Responses.getNotFound();
+        } else if(this.method == HTTPMethod.DELETE){
+            if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
+            else if (resource.startsWith("/delete"))
+            response = Responses.getDeleteFileResponse("./resources/public/" + resource.split("/")[2]);
             else response = Responses.getNotFound();
         }
         else response = Responses.getMethodNotAllowed();
