@@ -9,6 +9,7 @@ public class Server {
     ServerSocket server;
     protected ExecutorService pool = Executors.newFixedThreadPool(1000);
     public static final int PORT = 8080;
+    //public static final String HOST = "192.168.173.249";
     public static final String HOST = "localhost";
 
     class ServerThread implements Runnable {
@@ -50,7 +51,7 @@ public class Server {
     public Server() throws Exception {
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server started on port " + PORT + "on host " + HOST);
+            System.out.println("Server started on port " + PORT + " on host " + HOST);
             while (true) {
                 Socket client = server.accept();
                 System.out.println("Client connected: " + client.getInetAddress().getHostAddress());
