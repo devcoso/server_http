@@ -26,6 +26,7 @@ public class Server {
             ) {
                 while (true) {
                     HTTPHandler handler = HTTPHandler.readCompleteRequest(input);
+                    if(handler == null) continue;
                     handler.showFormatedRequest();
                     byte[] response = handler.getResponse();
                     output.write(response);

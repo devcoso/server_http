@@ -54,6 +54,7 @@ public class HTTPHandler {
         }
 
         String request = buffer.toString("UTF-8");
+        if (request.isEmpty()) return null;
         String[] firstLine = request.split(" ");
         String method = firstLine[0];
         String resource = firstLine.length > 1 ? firstLine[1] : "";
@@ -122,6 +123,21 @@ public class HTTPHandler {
             else if (resource.startsWith("/delete"))
             response = Responses.getDeleteFileResponse("./resources/public/" + resource.split("/")[2]);
             else response = Responses.getNotFound();
+        } else if(this.method == HTTPMethod.HEAD){
+            if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
+            else if(resource.equals("/parameters")) response = Responses.getFileResponse("./resources/parameters.html");
+            else if(resource.startsWith("/parameters?")) response = Responses.getParametersResponse(resource.split("\\?")[1]);
+            else if(resource.equals("/main.js")) response = Responses.getFileResponse("./resources/main.js");
+            else if(resource.equals("/favicon.ico")) response = Responses.getFileResponse("./resources/favicon.ico");
+            else if(resource.equals("/armando.jpeg")) response = Responses.getFileResponse("./resources/armando.jpeg");
+            else if(resource.equals("/list")) response = Responses.getFilesResponse("./resources/public");
+            else response = Responses.getFileResponse("./resources/public" + resource);
+
+            // Eliminar el cuerpo de la respuesta
+            String responseStr = new String(response);
+            responseStr = responseStr.substring(0, responseStr.indexOf("\n\n") + 2);
+            System.out.println(responseStr);
+            response = responseStr.getBytes();
         }
         else response = Responses.getMethodNotAllowed();
 
