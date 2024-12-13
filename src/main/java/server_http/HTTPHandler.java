@@ -30,16 +30,19 @@ public class HTTPHandler {
         byte[] data = new byte[65536];
         boolean headersComplete = false;
         int contentLength = -1;
+        int headerLength = 0;
 
         while (true) {
             int bytesRead = input.read(data);
             if (bytesRead == -1) break; // Fin del flujo
 
             buffer.write(data, 0, bytesRead);
-            String currentRequest = buffer.toString("UTF-8");
-
+            
             // Verificar si los encabezados están completos
-            if (!headersComplete && currentRequest.contains("\r\n\r\n")) {
+            if (!headersComplete) {
+                String currentRequest = buffer.toString("UTF-8");
+                if(currentRequest.indexOf("\r\n\r\n") == -1) continue;
+                headerLength = currentRequest.indexOf("\r\n\r\n") + 4;
                 headersComplete = true;
                 contentLength = getContentLength(currentRequest);
 
@@ -47,8 +50,7 @@ public class HTTPHandler {
                 if (contentLength == -1) break;
             }
 
-            // Si los encabezados están completos y se ha leído todo el cuerpo, salimos
-            if (headersComplete && buffer.size() >= currentRequest.indexOf("\r\n\r\n") + 4 + contentLength) {
+            if (headersComplete && buffer.size() >= contentLength + headerLength) {
                 break;
             }
         }
