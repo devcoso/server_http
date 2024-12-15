@@ -98,9 +98,6 @@ public class HTTPHandler {
             if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
             else if(resource.equals("/parameters")) response = Responses.getFileResponse("./resources/parameters.html");
             else if(resource.startsWith("/parameters?")) response = Responses.getParametersResponse(resource.split("\\?")[1]);
-            else if(resource.equals("/404")) response = Responses.getNotFound();
-            else if(resource.equals("/500")) response = Responses.getInternalServerError();
-            else if(resource.equals("/style.css")) response = Responses.getFileResponse("./resources/style.css");
             else if(resource.equals("/main.js")) response = Responses.getFileResponse("./resources/main.js");
             else if(resource.equals("/favicon.ico")) response = Responses.getFileResponse("./resources/favicon.ico");
             else if(resource.equals("/armando.jpeg")) response = Responses.getFileResponse("./resources/armando.jpeg");
@@ -108,21 +105,18 @@ public class HTTPHandler {
             else response = Responses.getFileResponse("./resources/public" + resource);
         } 
         else if(this.method == HTTPMethod.POST){
-            if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
-            else if (resource.startsWith("/upload"))
+            if (resource.startsWith("/upload"))
                 response = Responses.getCreateFileResponse("./resources/public/" + resource.split("/")[2], body, false);
             else response = Responses.getNotFound();
         }
         else if(this.method == HTTPMethod.PUT){
-            if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
-            else if (resource.startsWith("/upload")) 
+            if (resource.startsWith("/upload")) 
             response = Responses.getCreateFileResponse("./resources/public/" + resource.split("/")[2], body, true);
             else if (resource.startsWith("/rename"))
             response = Responses.renameResponse("./resources/public/" + resource.split("/")[2],"./resources/public/" + resource.split("/")[3]);
             else response = Responses.getNotFound();
         } else if(this.method == HTTPMethod.DELETE){
-            if (resource.equals("/")) response = Responses.getFileResponse("./resources/index.html");
-            else if (resource.startsWith("/delete"))
+            if (resource.startsWith("/delete"))
             response = Responses.getDeleteFileResponse("./resources/public/" + resource.split("/")[2]);
             else response = Responses.getNotFound();
         } else if(this.method == HTTPMethod.HEAD){
